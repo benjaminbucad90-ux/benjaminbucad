@@ -56,6 +56,11 @@
             overflow-x: hidden;
         }
 
+        /* Prevent scrolling while loading */
+        body.locked-scroll {
+            overflow: hidden !important;
+        }
+
         /* Crisp legibility over high-refraction glass */
         h1, h2, h3, h4, p {
             text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
@@ -417,9 +422,28 @@
         }
     </style>
 </head>
-<body class="relative min-h-screen selection:bg-white/30 selection:text-white pb-28">
+<!-- Added locked-scroll class initially so the user cannot scroll while loading -->
+<body class="relative min-h-screen selection:bg-white/30 selection:text-white pb-28 locked-scroll">
 
-    <!-- 0. ABSTRACT DARK WAVE WALLPAPER + LIQUID REFRACTION SVG FILTER -->
+    <!-- 0. GLOBAL FULLSCREEN LOADING OVERLAY -->
+    <div id="global-loader" class="fixed inset-0 z-[9999] bg-[#07090E]/85 backdrop-blur-3xl flex flex-col items-center justify-center transition-all duration-700 ease-in-out">
+        <!-- SVG Apple-style Spinner -->
+        <svg class="animate-spin h-12 w-12 text-white mb-8 opacity-90 drop-shadow-xl" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+            <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+
+        <!-- Progress Bar Track -->
+        <div class="w-64 h-1.5 bg-white/10 rounded-full overflow-hidden shadow-inner border border-white/5">
+            <!-- Progress Bar Fill -->
+            <div id="loader-progress" class="h-full bg-white rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
+        </div>
+        <div id="loader-text" class="mt-4 text-[10px] font-mono text-white/50 tracking-widest uppercase transition-opacity duration-300">
+            Initializing System...
+        </div>
+    </div>
+
+    <!-- 0.5. ABSTRACT DARK WAVE WALLPAPER + LIQUID REFRACTION SVG FILTER -->
     <div id="background-layer">
         <!-- SVG Definitions for Liquid Refraction Filter Only -->
         <svg class="absolute w-0 h-0 pointer-events-none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -449,7 +473,7 @@
                 <span>Benjamin P. Bucad</span>
             </a>
             <div class="hidden sm:flex items-center gap-4 text-mac-silver text-[11.5px]">
-                <a href="#home" class="hover:text-white transition-colors">Overview</a>
+                <a href="#home" class="hover:text-white transition-colors">Homepage</a>
                 <a href="#about" class="hover:text-white transition-colors">About Myself</a>
                 <a href="#family" class="hover:text-white transition-colors">Foundation</a>
                 <a href="#education" class="hover:text-white transition-colors">Education</a>
@@ -473,7 +497,7 @@
             <!-- Dock Item 1: Page 1 - Portfolio Home -->
             <a href="#home" data-section="home" class="dock-item group flex flex-col items-center cursor-pointer focus:outline-none">
                 <div class="dock-tooltip liquid-glass-elevated px-2.5 py-1 rounded-lg text-[11px] font-medium text-white shadow-lg">
-                    Page 1: Portfolio
+                    Page 1 Homepage
                 </div>
                 <div class="mac-app-icon w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center">
                     <svg class="w-full h-full rounded-[14px]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -636,14 +660,14 @@
 
                     <!-- Apple HIG Styled CTAs -->
                     <div class="flex flex-wrap items-center gap-3 w-full">
-                        <a href="#achievements" class="group flex items-center gap-2 bg-white hover:bg-mac-silver text-black px-5 py-2.5 rounded-full text-[13.5px] font-bold transition-all shadow-[0_8px_24px_rgba(255,255,255,0.25),inset_0_1px_1px_#fff] hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
-                            <span>View My Projects</span>
+                        <a href="#achievements" onmouseenter="decipherText(document.getElementById('cta-projects-text'))" class="group flex items-center gap-2 bg-white hover:bg-mac-silver text-black px-5 py-2.5 rounded-full text-[13.5px] font-bold transition-all shadow-[0_8px_24px_rgba(255,255,255,0.25),inset_0_1px_1px_#fff] hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
+                            <span id="cta-projects-text" data-text="View My Projects">View My Projects</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
                         </a>
                         
-                        <a href="#education" class="group flex items-center gap-2 liquid-glass text-white px-5 py-2.5 rounded-full text-[13.5px] font-semibold transition-all hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
+                        <a href="#education" onmouseenter="decipherText(document.getElementById('cta-resume-text'))" class="group flex items-center gap-2 liquid-glass text-white px-5 py-2.5 rounded-full text-[13.5px] font-semibold transition-all hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
                             <i data-lucide="download" class="w-4 h-4 text-white transition-transform group-hover:-translate-y-0.5 relative z-10"></i>
-                            <span class="relative z-10">Download Résumé</span>
+                            <span id="cta-resume-text" data-text="Download Résumé" class="relative z-10">Download Résumé</span>
                         </a>
 
                         <button type="button" onclick="openContactSheet()" class="group flex items-center gap-1.5 px-3 py-2.5 text-[13.5px] font-semibold text-white hover:text-mac-silver transition-colors focus:outline-none focus:ring-1 focus:ring-white rounded">
@@ -1156,6 +1180,59 @@
     </div>
 
     <script>
+        // ==========================================
+        // 0. GLOBAL PRELOADER LOGIC
+        // ==========================================
+        // Guarantee loader stays for at least 1.2 seconds
+        const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1200));
+        
+        // Check if window is loaded (all images, scripts, CSS)
+        const windowLoaded = new Promise(resolve => {
+            if (document.readyState === 'complete') {
+                resolve();
+            } else {
+                window.addEventListener('load', resolve);
+            }
+        });
+
+        // Fake Progress Bar Animation
+        const progressBar = document.getElementById('loader-progress');
+        const loaderText = document.getElementById('loader-text');
+        let currentProgress = 0;
+        
+        const progressInterval = setInterval(() => {
+            currentProgress += Math.random() * 15;
+            // Cap fake progress at 85% until window actually loads completely
+            if (currentProgress > 85) currentProgress = 85;
+            progressBar.style.width = `${currentProgress}%`;
+        }, 150);
+
+        // Wait for both the minimum time AND the window to fully load
+        Promise.all([minLoadingTime, windowLoaded]).then(() => {
+            clearInterval(progressInterval);
+            
+            // Snap to 100%
+            progressBar.style.width = '100%';
+            loaderText.textContent = 'System Ready';
+            loaderText.classList.add('text-mac-green', 'font-bold');
+
+            // Fade out and remove loading screen
+            setTimeout(() => {
+                const loader = document.getElementById('global-loader');
+                loader.classList.add('opacity-0');
+                
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    // Unlock page scrolling
+                    document.body.classList.remove('locked-scroll');
+                    
+                    // Trigger the typing hero animation ONLY AFTER loader is gone
+                    runMasterHeroSequence();
+                }, 700); // Wait for transition fade out
+            }, 400); // Brief pause to let user see 100%
+        });
+
+
         // Initialize Lucide Icons
         lucide.createIcons();
 
@@ -1249,11 +1326,42 @@
             }
         }
 
+        // Decipher / Scramble Text Animation for Homepage CTA Buttons
+        const CIPHER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+<>';
+
+        function decipherText(element, stepSpeed = 28) {
+            if (!element) return;
+            const targetText = element.dataset.text || element.textContent;
+            if (element._cipherInterval) {
+                clearInterval(element._cipherInterval);
+            }
+
+            let iteration = 0;
+            element._cipherInterval = setInterval(() => {
+                element.textContent = targetText
+                    .split('')
+                    .map((char, index) => {
+                        if (char === ' ') return ' ';
+                        if (index < iteration) return targetText[index];
+                        return CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)];
+                    })
+                    .join('');
+
+                if (iteration >= targetText.length) {
+                    clearInterval(element._cipherInterval);
+                    element.textContent = targetText;
+                }
+                iteration += 1 / 2.5;
+            }, stepSpeed);
+        }
+
         async function runMasterHeroSequence() {
             const l1 = document.getElementById('hero-line-1');
             const l2 = document.getElementById('hero-line-2');
             const l3 = document.getElementById('hero-line-3');
             const l4 = document.getElementById('hero-line-4');
+            const ctaProjects = document.getElementById('cta-projects-text');
+            const ctaResume = document.getElementById('cta-resume-text');
 
             await sleep(250);
 
@@ -1264,6 +1372,10 @@
             await typeText(l3, 'ALGORITHMS &', 40);
             await sleep(90);
             await typeText(l4, 'SYSTEMS EXPERT.', 40, false);
+
+            // Trigger decipher animation on the homepage CTA buttons
+            decipherText(ctaProjects, 28);
+            decipherText(ctaResume, 28);
         }
 
         // ==========================================
@@ -1491,10 +1603,6 @@
         ['home', 'about', 'family', 'education', 'achievements'].forEach(id => {
             const sec = document.getElementById(id);
             if (sec) sectionObserver.observe(sec);
-        });
-
-        window.addEventListener('DOMContentLoaded', () => {
-            runMasterHeroSequence();
         });
 
         // ==========================================
