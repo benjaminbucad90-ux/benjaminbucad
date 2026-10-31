@@ -658,16 +658,16 @@
                         </span>
                     </h1>
 
-                    <!-- Apple HIG Styled CTAs -->
-                    <div class="flex flex-wrap items-center gap-3 w-full">
-                        <a href="#achievements" onmouseenter="decipherText(document.getElementById('cta-projects-text'))" class="group flex items-center gap-2 bg-white hover:bg-mac-silver text-black px-5 py-2.5 rounded-full text-[13.5px] font-bold transition-all shadow-[0_8px_24px_rgba(255,255,255,0.25),inset_0_1px_1px_#fff] hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
-                            <span id="cta-projects-text" data-text="View My Projects">View My Projects</span>
+                    <!-- Apple HIG Styled CTAs (Hidden initially until typing completes) -->
+                    <div id="hero-cta-container" class="flex flex-wrap items-center gap-3 w-full opacity-0 translate-y-3 pointer-events-none transition-all duration-700 ease-out">
+                        <a href="#achievements" class="group flex items-center gap-2 bg-white hover:bg-mac-silver text-black px-5 py-2.5 rounded-full text-[13.5px] font-bold transition-all shadow-[0_8px_24px_rgba(255,255,255,0.25),inset_0_1px_1px_#fff] hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
+                            <span>View My Projects</span>
                             <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
                         </a>
                         
-                        <a href="#education" onmouseenter="decipherText(document.getElementById('cta-resume-text'))" class="group flex items-center gap-2 liquid-glass text-white px-5 py-2.5 rounded-full text-[13.5px] font-semibold transition-all hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
+                        <a href="#education" class="group flex items-center gap-2 liquid-glass text-white px-5 py-2.5 rounded-full text-[13.5px] font-semibold transition-all hover:-translate-y-0.5 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white">
                             <i data-lucide="download" class="w-4 h-4 text-white transition-transform group-hover:-translate-y-0.5 relative z-10"></i>
-                            <span id="cta-resume-text" data-text="Download Résumé" class="relative z-10">Download Résumé</span>
+                            <span class="relative z-10">Download Résumé</span>
                         </a>
 
                         <button type="button" onclick="openContactSheet()" class="group flex items-center gap-1.5 px-3 py-2.5 text-[13.5px] font-semibold text-white hover:text-mac-silver transition-colors focus:outline-none focus:ring-1 focus:ring-white rounded">
@@ -1326,42 +1326,12 @@
             }
         }
 
-        // Decipher / Scramble Text Animation for Homepage CTA Buttons
-        const CIPHER_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+<>';
-
-        function decipherText(element, stepSpeed = 28) {
-            if (!element) return;
-            const targetText = element.dataset.text || element.textContent;
-            if (element._cipherInterval) {
-                clearInterval(element._cipherInterval);
-            }
-
-            let iteration = 0;
-            element._cipherInterval = setInterval(() => {
-                element.textContent = targetText
-                    .split('')
-                    .map((char, index) => {
-                        if (char === ' ') return ' ';
-                        if (index < iteration) return targetText[index];
-                        return CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)];
-                    })
-                    .join('');
-
-                if (iteration >= targetText.length) {
-                    clearInterval(element._cipherInterval);
-                    element.textContent = targetText;
-                }
-                iteration += 1 / 2.5;
-            }, stepSpeed);
-        }
-
         async function runMasterHeroSequence() {
             const l1 = document.getElementById('hero-line-1');
             const l2 = document.getElementById('hero-line-2');
             const l3 = document.getElementById('hero-line-3');
             const l4 = document.getElementById('hero-line-4');
-            const ctaProjects = document.getElementById('cta-projects-text');
-            const ctaResume = document.getElementById('cta-resume-text');
+            const ctaContainer = document.getElementById('hero-cta-container');
 
             await sleep(250);
 
@@ -1373,9 +1343,12 @@
             await sleep(90);
             await typeText(l4, 'SYSTEMS EXPERT.', 40, false);
 
-            // Trigger decipher animation on the homepage CTA buttons
-            decipherText(ctaProjects, 28);
-            decipherText(ctaResume, 28);
+            // Reveal CTA buttons smoothly after typing sequence finishes
+            await sleep(200);
+            if (ctaContainer) {
+                ctaContainer.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+                ctaContainer.classList.add('opacity-100', 'translate-y-0');
+            }
         }
 
         // ==========================================
